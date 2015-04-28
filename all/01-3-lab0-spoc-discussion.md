@@ -5,37 +5,37 @@
 ---
 
 能否读懂ucore中的AT&T格式的X86-32汇编语言？请列出你不理解的汇编语言。
-- [x]  
+- 基本可以读懂，但部分指令需要查询手册，如cli等。  
 
 >  http://www.imada.sdu.dk/Courses/DM18/Litteratur/IntelnATT.htm
 >  inb一般应用程序用不到的指令等。
 
 虽然学过计算机原理和x86汇编（根据THU-CS的课程设置），但对ucore中涉及的哪些硬件设计或功能细节不够了解？
-- [x]  
+- 之前的课程中偏重于CPU的架构和实现，对于外设的驱动等没有涉及，我希望能够了解。
 
 > 中断寄存器和非通用寄存器等。
 
 
 哪些困难（请分优先级）会阻碍你自主完成lab实验？
-- [x]  
+- 时间不够；对Linux工具的不熟悉
 
 >   
 
 如何把一个在gdb中或执行过程中出现的物理/线性地址与你写的代码源码位置对应起来？
-- [x]  
+- 使用OBJdump，生成源代码的二进制文件，能够得到对应的代码位置的线性地址编号。  
 
 > 1. 在gdb中通过break加行号得到物理地址，list加*物理地址得到行号。
 > 2. 用nm, objdump工具可以看到
 
 了解函数调用栈对lab实验有何帮助？
-- [x]  
+- 了解函数调用栈，可以帮助我们明晰汇编程序运行流程、设计思路。明白函数调用栈的变化情况，也有助于我们理解实验中的代码。  
 
 > 除了错可以调试 
 > 对于函数的调用过程和程序的运行过程有更好的理解。
 > 便于调试以及检查。 
 
 你希望从lab中学到什么知识？
-- [x]  
+- 加深对操作系统实现细节的理解，明白其更多的设计细节  
 
 >   
 
@@ -46,7 +46,7 @@
 ---
 
 搭建好实验环境，请描述碰到的困难和解决的过程。
-- [x]  
+- 没什么问题  
 
 > 困难：在virtualbox中设置虚拟机的时候找不到Linux的64位选项。
 > 解决：需要通过BIOS设置将电脑的虚拟化功能打开（本电脑LenovoY480的VT功能是锁的，需要打开）。
@@ -55,13 +55,13 @@
 熟悉基本的git命令行操作命令，从github上
 的 http://www.github.com/chyyuu/ucore_lab 下载
 ucore lab实验
-- [x]  
+- 已下载
 
 > clone 仓库 
 > gitclone http://www.github.com/chyyuu/ucore_lab
 
 尝试用qemu+gdb（or ECLIPSE-CDT）调试lab1
-- [x]   
+- 完毕 
 
 > 清除文件夹：make clean 
 > 编译lab1：make 
@@ -83,7 +83,7 @@ ucore lab实验
  };
  ```
 
-- [x]  
+- 表示变量所占的比特数
 
 > 每一个filed(域，成员变量)在struct(结构)中所占的位数; 也称“位域”，用于表示这个成员变量占多少位(bit)。
 
@@ -109,12 +109,19 @@ SETGATE(intr, 0,1,2,3);
 ```
 请问执行上述指令后， intr的值是多少？
 
-- [x]  0x10002
+-  65538
 
 > https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab0/lab0_ex3.c
 
 请分析 [list.h](https://github.com/chyyuu/ucore_lab/blob/master/labcodes/lab2/libs/list.h)内容中大致的含义，并能include这个文件，利用其结构和功能编写一个数据结构链表操作的小C程序
-- [x]  
+-   声明了结构体：list的entry，即链表的条目。定义了链表的创建、添加、删除、清空等操作。
+
+#include "list.h"
+int main(){
+    list_entry* en = (list_entry)malloc(sizeof(list_entry));
+    list_init(en);
+    return 0;
+}
 
 > 
 
@@ -125,7 +132,7 @@ SETGATE(intr, 0,1,2,3);
 ---
 
 是否愿意挑战大实验（大实验内容来源于你的想法或老师列好的题目，需要与老师协商确定，需完成基本lab，但可不参加闭卷考试），如果有，可直接给老师email或课后面谈。
-- [x]  
+- 否 
 
 >  
 
