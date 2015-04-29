@@ -28,7 +28,7 @@ x86保护模式中权限管理无处不在，下面哪些时候要检查访问�
   - 除上述两点外，进一步描述了页表建立初始过程和设置CR0控寄存器某位来使能页（3分）
 
  ```
-- [x]  
+- pmm_init函数主要完成建立页机制的工作。调用了gdt_init函数对GDT进行最后的初始化，此函数设置了内核栈以及默认的SS0，接着初始化TSS，最后调用lgdt重新写入段寄存器的值。调用page_init函数对物理内存空间进行探测，并释放已用空间，调用pmm_manager中的init_memmap以便对空闲内存进行管理。最后执行enable_paging函数使能页机制，设置CR0寄存器的相关位CR0_PE, CR0_PG, CR0_AM, CR0_WP, CR0_NE, CR0_TS, CR0_EM, CR0_MP，CR0_TS，CR0_EM。 
 
 >  
 
@@ -39,7 +39,7 @@ x86保护模式中权限管理无处不在，下面哪些时候要检查访问�
 
 （1）（spoc）请用lab1实验的基准代码（即没有修改的需要填空的源代码）来做如下实验： 执行`make qemu`，会得到一个输出结果，请给出合理的解释：为何qemu退出了？【提示】需要对qemu增加一些用于基于执行过的参数，重点是分析其执行的指令和产生的中断或异常。 
 
-- [x]  
+- 由于基准代码中并没有初始化中断描述符表，使得系统不能处理对应的时钟中断和其他外设中断，随后触发double fault异常造成系统崩溃。  
 
 > 
 
@@ -54,8 +54,32 @@ x86保护模式中权限管理无处不在，下面哪些时候要检查访问�
 ```    
 然后，请回答加入这条语句后，执行`make qemu`的输出结果与你没有加入这条语句后执行`make qemu`的输出结果的差异，并解释为什么有差异或没差异？ 
 
-- [x]  
+- 我的学号 mod 37后为33，故在初始化中断请求后直接执行int $33
 
+输出如下：
+
+trapframe at 0x7b6c
+  edi  0x00000001
+  esi  0x00000000
+  ebp  0x00007bc8
+  oesp 0x00007b8c
+  ebx  0x00010094
+  edx  0x000000a1
+  ecx  0x00000000
+  eax  0x000000ff
+  ds   0x----0010
+  es   0x----0010
+  fs   0x----0023
+  gs   0x----0023
+  trap 0x00000021 Invalid Opcode
+  err  0x00000000
+  eip  0x0010006b
+  cs   0x----0008
+  flag 0x00000206 PF,IF,IOPL=0
+kernel panic at kern/trap/trap.c:183:
+    unexpected trap in kernel.
+
+产生差异的原因可能是编号为33的系统调用并不存在，所以在内核中产生了异常。
 > 
 
 （3）对于lab2的输出信息，请说明数字的含义
@@ -108,8 +132,33 @@ va 0xce6c3f32, pa 0x007d4f32
 va 0xcd82c07c, pa 0x0c20907c, pde_idx 0x00000336, pde_ctx  0x00037003, pte_idx 0x0000002c, pte_ctx  0x0000c20b
 ```
 
-- [x]  
+- 
 
+```
+# -*- coding: cp936 -*-
+import os,sys
+def work(va,pa):
+    pde_idx = va>>22
+    pde_ctx = ((((va>>22)-0x300+1)<<12)& 0xfffff000)|0x003
+    pte_idx = (va & (0x3ff000))>>12
+    pte_ctx = ((pa & (0xfffff000)))| 0x003
+    print 'va:',hex(va),
+    print 'pa:',hex(pa),
+    print 'pde_idx:',hex(pde_idx),
+    print 'pde_ctx:',hex(pde_ctx),
+    print 'pte_idx:',hex(pte_idx),
+    print 'pte_ctx:',hex(pte_ctx)
+f=file('data.txt','r')
+line = f.readline()
+while line:
+    t=line.strip().split(' ')
+    work(int(t[1],16),int(t[3],16))
+    line = f.readline()
+```
+
+```
+va: 0xc2265b1fL pa: 0xd8f1b1f pde_idx: 0x308L pde_ctx: 0x9003L pte_idx: 0x265L pte_ctx: 0xd8f1003L va: 0xcc386bbcL pa: 0x414cbbc pde_idx: 0x330L pde_ctx: 0x31003L pte_idx: 0x386L pte_ctx: 0x414c003L va: 0xc7ed4d57L pa: 0x7311d57 pde_idx: 0x31fL pde_ctx: 0x20003L pte_idx: 0x2d4L pte_ctx: 0x7311003L va: 0xca6cecc0L pa: 0xc9e9cc0 pde_idx: 0x329L pde_ctx: 0x2a003L pte_idx: 0x2ceL pte_ctx: 0xc9e9003L va: 0xc18072e8L pa: 0x7412e8 pde_idx: 0x306L pde_ctx: 0x7003L pte_idx: 0x7L pte_ctx: 0x741003L va: 0xcd5f4b3aL pa: 0x6ec9b3a pde_idx: 0x335L pde_ctx: 0x36003L pte_idx: 0x1f4L pte_ctx: 0x6ec9003L va: 0xcc324c99L pa: 0x8ac99 pde_idx: 0x330L pde_ctx: 0x31003L pte_idx: 0x324L pte_ctx: 0x8a003L va: 0xc7204e52L pa: 0xb8b6e52 pde_idx: 0x31cL pde_ctx: 0x1d003L pte_idx: 0x204L pte_ctx: 0xb8b6003L va: 0xc3a90293L pa: 0xf1fd293 pde_idx: 0x30eL pde_ctx: 0xf003L pte_idx: 0x290L pte_ctx: 0xf1fd003L va: 0xce6c3f32L pa: 0x7d4f32 pde_idx: 0x339L pde_ctx: 0x3a003L pte_idx: 0x2c3L pte_ctx: 0x7d4003L
+```
 > 
 
 ---
