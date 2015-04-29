@@ -35,6 +35,26 @@ time ./goodlocality
 ```
 可以看到其执行时间。
 
+- 可以直接将程序中的A[i][j] = i+j; 改为A[j][i] = i+j; 即为一个局部性差的例子。
+
+测试结果：
+
+===========Good Locality============
+10485760 count computing over!
+
+real    0m0.082s
+user    0m0.074s
+sys 0m0.004s
+===========Bad Locality=============
+10485760 count computing over!
+
+real    0m0.606s
+user    0m0.563s
+sys 0m0.007s
+
+
+
+
 ## 小组思考题目
 ----
 
@@ -117,6 +137,77 @@ Virtual Address 1e6f(0 001_11 10_011 0_1111):
   disk 16: 00 0a 15 1a 03 00 09 13 1c 0a 18 03 13 07 17 1c 
            0d 15 0a 1a 0c 12 1e 11 0e 02 1d 10 15 14 07 13
       --> To Disk Sector Address 0x2cf(0001011001111) --> Value: 1c
+```
+```
+f=file('mem.txt')
+mem = []
+line = f.readline()
+while line:
+    t=line.strip().split(' ')
+    tt=[]
+    #print line
+    for i in range(2,len(t)):
+        tt.append(t[i])
+    mem.append(tt)
+    line = f.readline()
+f=file('disk.txt')
+disk = []
+line = f.readline()
+while line:
+    t=line.strip().split(' ')
+    tt=[]
+    #print line
+    for i in range(2,len(t)):
+        tt.append(t[i])
+    disk.append(tt)
+    line = f.readline()
+a=0x1c13
+print 'pde index:',hex(a>>10)
+print 'pde content',mem[int(0x6c)][int(a>>10)]
+pde_content=mem[int(0x6c)][int(a>>10)]
+if (int(pde_content,16))>>7==1:
+    print 'valid 1'
+    pfn = int(pde_content,16) & 0x7f
+    print 'pfn',hex(pfn)
+    print 'pte index:',hex(a>>5 & 0x1f)
+    pte_index = a>>5 & 0x1f
+    print 'pte content',mem[pfn][pte_index]
+    pte_content = mem[pfn][pte_index]
+    if (int(pte_content,16))>>7==1:
+        print 'valid 1'
+        pfn = int(pte_content,16) & 0x7f
+        print 'pfn',hex(pfn)
+        print 'physical address',hex((pfn << 5) |( a & 0x1f))
+        physical_address = (pfn << 5) |( a & 0x1f)
+        print 'Value',mem[physical_address>>5][physical_address & 0x1f]
+    else:
+        print 'valid 0'
+        pfn = int(pte_content,16) & 0x7f
+        print 'pfn',hex(pfn)
+        print 'physical address',hex((pfn << 5) |( a & 0x1f))
+        physical_address = (pfn << 5) |( a & 0x1f)
+        print 'Value',disk[physical_address>>5][physical_address & 0x1f]
+else:
+    print 'valid 0'
+    pfn = int(pde_content,16) & 0x7f
+    print 'pfn',hex(pfn)
+```
+```
+
+6653 = 11001 10010 10011
+11001在一级页表找到7f 无效 缺失
+
+1c13 = 00111 00000 10011
+找到bd 有效 3d里找第0个 f6 有效 找76的第19个 12
+
+6809 = 11010 00000 01001
+找到7f 无效
+
+0af6 = 00010 10111 10110
+找到a1 有效 26的第23个 7f 无效 在disk的7f里找10110(22) -> 03
+
+1e6f = 00111 10011 01111
+找到bd 有效 3d里的第19个 16 无效 在disk的16里找15 -> 1c
 ```
 
 ## 扩展思考题
