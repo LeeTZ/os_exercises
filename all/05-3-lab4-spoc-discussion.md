@@ -52,9 +52,14 @@ tf和context中的esp
 
 ### 1. 分析并描述创建分配进程的过程
 
+- 为进程分配proc_struct结构，填写上述的state进程状态，pid进程号，cr3页表寄存器，context进程上下文，tf中断帧。然后在do_fork中分配pid，最后对其进行调度。
+
 > 注意 state、pid、cr3，context，trapframe的含义
 
 ### 练习2：分析并描述新创建的内核线程是如何分配资源的
+
+- 新创建的内核线程，分别进行了kstack trapframe context的资源分配kstack的初始化setup_kstack函数 调用alloc_page分配页面，然后调用page2kva得到页对应的内核虚拟地址，即为堆栈起始地址trapframe的初始化copy_thread函数 为trapframe分配地址空间，由这一句"proc->tf = (struct trapframe * )(proc->kstack+KSTACKSIZE)-1)"可知其终止地址为kstack的栈顶，利用传入的参数tf对其进行初始，然后对寄存器进行相应设置context的初始化copy_thread函数 为context的eip esp赋初值然后便完成了资源的分配。
+
 
 > 注意 理解对kstack, trapframe, context等的初始化
 

@@ -54,6 +54,7 @@ https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab1/lab1-boot-with
 
 ### 练习用的[lab5 spoc exercise project source code](https://github.com/chyyuu/ucore_lab/tree/master/related_info/lab5/lab5-spoc-discuss)
 
+- 通过对已有代码的分析，发现内核线程，线程编号0为idle线程，创建编号为1的内核线程，然后该线程创建编号为2的用户进程，并为其分配内存等资源，然后进行exit.c中的用户程序。在这个用户程序中，调用fork的系统调用，复制得到了一个用户进程。在这里修改程序，增加了一个用户进程，并使得这两个进程轮流运行。最终编号为2的父进程等待子进程运行结束。最后退出进程完成资源回收。
 
 #### 掌握知识点
 1. 用户进程的启动、运行、就绪、等待、退出
